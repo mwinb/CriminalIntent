@@ -48,7 +48,7 @@ public class CrimeListFragment extends Fragment {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
         }
-        else if (mLastClicked != null) {
+        else {
             int index = crimes.indexOf(crimeLab.getCrime(mLastClicked));
             if(index != -1)
                 mAdapter.notifyItemChanged(index);
