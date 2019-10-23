@@ -1,5 +1,6 @@
 package edu.osucascades.cs492.criminalintent;
 
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.UUID;
 
@@ -32,6 +33,10 @@ public class Crime {
 
     public Date getDate() {
         return mDate;
+    }
+
+    public String getFormattedDate() {
+        return DateFormat.getDateInstance(DateFormat.FULL).format(mDate);
     }
 
     public void setDate(Date date) {
