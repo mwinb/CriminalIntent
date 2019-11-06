@@ -17,6 +17,7 @@
         </activity>
         <activity android:name=".CrimePagerActivity">
         </activity>
-    </application>
+        <activity android:name=".DatePickerActivity"/>
+    </application>kl
 
 </manifest>

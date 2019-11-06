@@ -34,6 +34,7 @@ public class CrimeFragment extends Fragment {
     private Button mDateButton;
     private Button mTimeButton;
     private CheckBox mSolvedCheckBox;
+    private boolean mIsTablet;
 
     public static CrimeFragment newInstance(UUID crimeId) {
         Bundle args = new Bundle();
@@ -52,6 +53,7 @@ public class CrimeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
+        mIsTablet = getResources().getBoolean(R.bool.is_tablet);
     }
 
     @Nullable
@@ -86,10 +88,15 @@ public class CrimeFragment extends Fragment {
         mDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentManager manager = getFragmentManager();
-                DatePickerFragment dialog = DatePickerFragment.newInstance(mCrime.getDate());
-                dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
-                dialog.show(manager, DIALOG_DATE);
+                if(mIsTablet) {
+                    FragmentManager manager = getFragmentManager();
+                    DatePickerFragment dialog = DatePickerFragment.newInstance(mCrime.getDate());
+                    dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
+                    dialog.show(manager, DIALOG_DATE);
+                } else {
+                    Intent intent = DatePickerActivity.newIntent(getContext(), mCrime.getDate());
+                    startActivityForResult(intent, REQUEST_DATE);
+                }
             }
         });
 
