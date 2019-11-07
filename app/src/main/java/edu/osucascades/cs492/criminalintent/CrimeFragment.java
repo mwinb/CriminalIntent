@@ -110,7 +110,6 @@ public class CrimeFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.fragment_crime, menu);
-        MenuItem deleteCrime = menu.findItem(R.id.delete_crime_menu_button);
     }
 
     @Override
