@@ -8,6 +8,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -22,6 +23,8 @@ public class CrimeListFragment extends Fragment {
     private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
+    private Button mNewCrimeButton;
+    private TextView mNoCrimesTextView;
     private boolean mSubtitleVisible;
 
     @Override
@@ -40,6 +43,18 @@ public class CrimeListFragment extends Fragment {
         mCrimeRecyclerView = view
                 .findViewById(R.id.crime_recycler_view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        mNoCrimesTextView = view.findViewById(R.id.empty_crimes_text_view);
+        mNewCrimeButton = view.findViewById(R.id.empty_crimes_add_button);
+        mNewCrimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Crime newCrime = new Crime();
+                CrimeLab.get(getActivity()).addCrime(newCrime);
+                Intent intent = CrimePagerActivity.newIntent(getActivity(), newCrime.getId());
+                startActivity(intent);
+            }
+        });
 
         updateUI();
 
@@ -73,7 +88,7 @@ public class CrimeListFragment extends Fragment {
     private void updateSubtitle() {
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         int crimeCount = crimeLab.getCrimes().size();
-        String subtitle = getString(R.string.subtitle_format, crimeCount);
+        String subtitle = getResources().getQuantityString(R.plurals.subtitle_plural, crimeCount, crimeCount);
         if (!mSubtitleVisible) {
             subtitle = null;
         }
@@ -104,6 +119,14 @@ public class CrimeListFragment extends Fragment {
     private void updateUI() {
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
+
+        if(crimes.size() > 0) {
+            mNoCrimesTextView.setVisibility(View.GONE);
+            mNewCrimeButton.setVisibility(View.GONE);
+        } else {
+            mNoCrimesTextView.setVisibility(View.VISIBLE);
+            mNewCrimeButton.setVisibility(View.VISIBLE);
+        }
         if(mAdapter == null) {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
