@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -78,6 +77,7 @@ public class CrimeLab {
         values.put(CrimeTable.Cols.DATE, crime.getDate().getTime());
         values.put(CrimeTable.Cols.SOLVED, crime.isSolved() ? 1 : 0);
         values.put(CrimeTable.Cols.SUSPECT, crime.getSuspect());
+        values.put(CrimeTable.Cols.SUSPECT_NUMBER, crime.getSuspectNumber());
         return values;
     }
 

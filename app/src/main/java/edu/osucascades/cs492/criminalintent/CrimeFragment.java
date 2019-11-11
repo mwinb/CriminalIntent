@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.Editable;
@@ -23,6 +24,7 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ShareCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -41,6 +43,7 @@ public class CrimeFragment extends Fragment {
     private Button mDateButton;
     private Button mCrimeReportButton;
     private Button mSuspectButton;
+    private Button mCallButton;
     private CheckBox mSolvedCheckBox;
 
     public static CrimeFragment newInstance(UUID crimeId) {
@@ -140,6 +143,21 @@ public class CrimeFragment extends Fragment {
                 startActivityForResult(pickContact, REQUEST_CONTACT);
             }
         });
+
+        mCallButton = v.findViewById(R.id.call_suspect);
+        if(mCrime.getSuspectNumber() == null)
+            mCallButton.setEnabled(false);
+
+        mCallButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_DIAL,
+                        Uri.parse("tel:" + mCrime.getSuspectNumber()));
+                startActivity(intent);
+            }
+        });
+
+
         if (mCrime.getSuspect() != null) {
             mSuspectButton.setText(mCrime.getSuspect());
         }
@@ -186,24 +204,52 @@ public class CrimeFragment extends Fragment {
         else if (requestCode == REQUEST_CONTACT && data != null) {
             Uri contactUri = data.getData();
             String[] queryFields = new String[]{
-                    ContactsContract.Contacts.DISPLAY_NAME
+                    ContactsContract.Contacts._ID,
+                    ContactsContract.Contacts.DISPLAY_NAME,
+                    ContactsContract.Contacts.HAS_PHONE_NUMBER
+
             };
             Cursor c = getActivity().getContentResolver()
                     .query(contactUri, queryFields, null, null, null);
+
+            String suspectId;
+            String hasPhoneNumber;
             try {
                 if(c.getCount() == 0) {
                     return;
                 }
                 c.moveToFirst();
-                String suspect = c.getString(0);
+                String suspect = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                suspectId = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
+                hasPhoneNumber = c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
                 mCrime.setSuspect(suspect);
                 mSuspectButton.setText(suspect);
             } finally {
                 c.close();
             }
+            contactUri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+            queryFields = new String[] {
+                    ContactsContract.CommonDataKinds.Phone.NUMBER
+            };
+            c = getActivity().getContentResolver()
+                    .query(contactUri, queryFields,
+                            ContactsContract.CommonDataKinds.Phone._ID + " = ? ",
+                            new String[] {suspectId}, null);
 
+            try {
+                if (c.getCount() == 0) {
+                    return;
+                }
+                c.moveToFirst();
+                if(hasPhoneNumber.equals("1")) {
+                    String number = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    mCrime.setSuspectNumber(number);
+                    mCallButton.setEnabled(true);
+                }
 
-
+            } finally {
+                c.close();
+            }
         }
     }
 
@@ -231,5 +277,6 @@ public class CrimeFragment extends Fragment {
                 mCrime.getTitle(), dateString, solvedString, suspect);
         return report;
     }
+
 }
 
