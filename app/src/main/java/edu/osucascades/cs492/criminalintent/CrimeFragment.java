@@ -5,12 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
-<<<<<<< HEAD
-import android.os.Build;
-=======
 import android.graphics.Bitmap;
-import android.graphics.Point;
->>>>>>> 4a36321a0081fade7ece9473b611a328c226d7d0
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
@@ -23,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -47,6 +43,7 @@ import java.util.UUID;
 public class CrimeFragment extends Fragment {
     public static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
+    private static final String DIALOG_PHOTO = "DialogPhoto";
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_CONTACT = 1;
     private static final int REQUEST_PHOTO = 2;
@@ -215,7 +212,27 @@ public class CrimeFragment extends Fragment {
             }
         });
         mPhotoView = v.findViewById(R.id.crime_photo);
-        updatePhotoView();
+
+        mPhotoView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            private boolean hasLoadedPhoto = false;
+            @Override
+            public void onGlobalLayout() {
+                if (!hasLoadedPhoto) {
+                    updatePhotoView();
+                    hasLoadedPhoto = true;
+                }
+            }
+        });
+
+        mPhotoView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager manager = getFragmentManager();
+                String photoPath = CrimeLab.get(getActivity()).getPhotoFile(mCrime).getPath();
+                CrimePhotoFragment dialog = CrimePhotoFragment.newInstance(photoPath);
+                dialog.show(manager, DIALOG_PHOTO);
+            }
+        });
 
         return v;
     }
@@ -276,7 +293,6 @@ public class CrimeFragment extends Fragment {
             } finally {
                 c.close();
             }
-<<<<<<< HEAD
             contactUri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
             queryFields = new String[] {
                     ContactsContract.CommonDataKinds.Phone.NUMBER
@@ -300,13 +316,11 @@ public class CrimeFragment extends Fragment {
             } finally {
                 c.close();
             }
-=======
         }
         else if (requestCode == REQUEST_PHOTO) {
             Uri uri = FileProvider.getUriForFile(getActivity(), FILE_PROVIDER_AUTHORITY, mPhotoFile);
             getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             updatePhotoView();
->>>>>>> 4a36321a0081fade7ece9473b611a328c226d7d0
         }
     }
 
@@ -335,8 +349,6 @@ public class CrimeFragment extends Fragment {
         return report;
     }
 
-<<<<<<< HEAD
-=======
     private void updatePhotoView() {
         if (mPhotoFile == null || !mPhotoFile.exists()) {
             mPhotoView.setImageDrawable(null);
@@ -346,6 +358,5 @@ public class CrimeFragment extends Fragment {
             mPhotoView.setImageBitmap(bitmap);
         }
     }
->>>>>>> 4a36321a0081fade7ece9473b611a328c226d7d0
 }
 

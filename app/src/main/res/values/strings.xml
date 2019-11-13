@@ -15,6 +15,7 @@
     <string name="crime_report">%1$s!
 The crime was discovered on %2$s. %3$s, and %4$s
 </string>
+    <string name="crime_photo_dialog_title">Crime Photo</string>
     <string name="crime_report_solved">The case is solved</string>
     <string name="crime_report_unsolved">The case is not solved</string>
     <string name="crime_report_no_suspect">there is no suspect.</string>

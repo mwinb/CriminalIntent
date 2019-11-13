@@ -6,7 +6,6 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -22,8 +21,8 @@
                 android:layout_height="80dp"
                 android:layout_width="80dp"
                 android:scaleType="centerInside"
-                android:cropToPadding="true"
                 android:background="@android:color/darker_gray" />
+
             <ImageButton
                 android:id="@+id/crime_camera"
                 android:layout_width="match_parent"
