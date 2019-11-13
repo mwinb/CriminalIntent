@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,6 +106,11 @@ public class CrimeLab {
     public void deleteCrime(Crime crime) {
         mDatabase.delete(CrimeTable.NAME, CrimeTable.Cols.UUID + " = ?",
                 new String[]{crime.getId().toString()});
+    }
+
+    public File getPhotoFile(Crime crime) {
+        File filesDir = mContext.getFilesDir();
+        return new File(filesDir, crime.getPhotoFilename());
     }
 
 }
