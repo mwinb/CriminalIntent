@@ -1,6 +1,6 @@
 package edu.osucascades.cs492.criminalintent;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,6 +24,17 @@ public class CrimeListFragment extends Fragment {
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
     private boolean mSubtitleVisible;
+    private Callbacks mCallbacks;
+
+    public interface Callbacks {
+        void onCrimeSelected(Crime crime);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallbacks = (Callbacks) context;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,8 +53,23 @@ public class CrimeListFragment extends Fragment {
                 .findViewById(R.id.crime_recycler_view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        updateUI();
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
 
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                if (direction == ItemTouchHelper.RIGHT) {
+                    mAdapter.swipeToDelete(viewHolder.getAdapterPosition());
+                    updateUI();
+                }
+            }
+        });
+
+        itemTouchHelper.attachToRecyclerView(mCrimeRecyclerView);
         return view;
     }
 
@@ -56,6 +83,12 @@ public class CrimeListFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(SAVED_SUBTITLE_VISIBLE, mSubtitleVisible);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
     }
 
     @Override
@@ -87,9 +120,8 @@ public class CrimeListFragment extends Fragment {
             case R.id.new_crime:
                 Crime crime = new Crime();
                 CrimeLab.get(getActivity()).addCrime(crime);
-                Intent intent = CrimePagerActivity
-                        .newIntent(getActivity(), crime.getId());
-                startActivity(intent);
+                updateUI();
+                mCallbacks.onCrimeSelected(crime);
                 return true;
             case R.id.show_subtitle:
                 mSubtitleVisible = !mSubtitleVisible;
@@ -101,7 +133,7 @@ public class CrimeListFragment extends Fragment {
         }
     }
 
-    private void updateUI() {
+    public void updateUI() {
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
         if(mAdapter == null) {
@@ -137,8 +169,7 @@ public class CrimeListFragment extends Fragment {
 
         @Override
         public void onClick(View view) {
-            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId());
-            startActivity(intent);
+            mCallbacks.onCrimeSelected(mCrime);
         }
 
     }
@@ -164,6 +195,14 @@ public class CrimeListFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mCrimes.size();
+        }
+
+        public void swipeToDelete(int position) {
+            CrimeLab crimeLab = CrimeLab.get(getActivity());
+            Crime crime = mCrimes.get(position);
+            crimeLab.deleteCrime(crime);
+            mAdapter.notifyItemRemoved(position);
+            mAdapter.notifyItemRangeChanged(position, crimeLab.getCrimes().size());
         }
 
         public void setCrimes(List<Crime> crimes) {
