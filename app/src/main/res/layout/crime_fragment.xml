@@ -23,11 +23,15 @@
                 android:layout_width="80dp"
                 android:scaleType="centerInside"
                 android:cropToPadding="true"
+                android:contentDescription="@string/crime_photo_no_image_description"
+                android:focusable="true"
                 android:background="@android:color/darker_gray" />
+
             <ImageButton
                 android:id="@+id/crime_camera"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:contentDescription="@string/crime_photo_button_description"
                 android:src="@android:drawable/ic_menu_camera"/>
 
 
@@ -43,6 +47,7 @@
                 style="?android:listSeparatorTextViewStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:labelFor="@+id/crime_title"
                 android:text="@string/crime_title_label" />
 
             <EditText
