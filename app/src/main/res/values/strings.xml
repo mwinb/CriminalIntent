@@ -28,4 +28,6 @@ Crime scene photo (not set)
 </string>
     <string name="crime_photo_image_description">Crime scene photo (set)</string>
     <string name="crime_is_solved_description">Crime Solved</string>
+    <string name="choose_date_button_description">Select Date of Crime</string>
+    <string name="choose_suspect_button_description">Select Suspect</string>
 </resources>

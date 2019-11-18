@@ -143,7 +143,7 @@ public class CrimeFragment extends Fragment {
         });
 
         mSolvedCheckBox = v.findViewById(R.id.crime_solved);
-        mSolvedCheckBox.setActivated(mCrime.isSolved());
+        mSolvedCheckBox.setChecked(mCrime.isSolved());
         mSolvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView,
@@ -274,7 +274,7 @@ public class CrimeFragment extends Fragment {
                 mCrime.setSuspect(suspect);
                 updateCrime();
                 mSuspectButton.setText(suspect);
-
+                mSuspectButton.setContentDescription("Current suspect " + suspect + ". " + getString(R.string.choose_suspect_button_description));
             } finally {
                 c.close();
             }
@@ -284,6 +284,13 @@ public class CrimeFragment extends Fragment {
             getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             updateCrime();
             updatePhotoView();
+            mPhotoView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mPhotoView.announceForAccessibility("Set Photo to: " + mPhotoFile.getName() + ". ");
+
+                }
+            }, 5000);
         }
     }
 
@@ -297,6 +304,7 @@ public class CrimeFragment extends Fragment {
         String dateString = DateFormat.format(dateFormat,
                 mCrime.getDate()).toString();
         mDateButton.setText(dateString);
+        mDateButton.setContentDescription("Crime Date:" + dateString + ". " + getString(R.string.choose_date_button_description));
     }
 
     private String getCrimeReport() {
@@ -330,7 +338,7 @@ public class CrimeFragment extends Fragment {
             Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getPath(), getActivity());
             mPhotoView.setImageBitmap(bitmap);
             mPhotoView.setContentDescription(
-                    getString(R.string.crime_photo_image_description));
+                    getString( R.string.crime_photo_image_description));
         }
     }
 }
